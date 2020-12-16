@@ -1,4 +1,5 @@
 #include "nemu.h"
+#include "common.h"
 
 const char *regsl[] = {
   "$0", "ra", "sp", "gp", "tp", "t0", "t1", "t2",
@@ -8,6 +9,11 @@ const char *regsl[] = {
 };
 
 void isa_reg_display() {
+    for (int i = 0; i < 32; ++i) {
+        printf("%3s: " FMT_WORD " ", regsl[i], cpu.gpr[i]._32);
+        if(i % 4 == 3)
+            printf("\n");
+    }
 }
 
 uint32_t isa_reg_str2val(const char *s, bool *success) {

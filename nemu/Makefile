@@ -1,7 +1,8 @@
 NAME = nemu
+NEMU_HOME = $(shell pwd)
 
 ifneq ($(MAKECMDGOALS),clean) # ignore check for make clean
-ISA ?= x86
+ISA ?= riscv32
 ISAS = $(shell ls src/isa/)
 $(info Building $(ISA)-$(NAME))
 
@@ -71,6 +72,8 @@ $(BINARY): $(OBJS)
 	@$(LD) -O2 -rdynamic $(SO_LDLAGS) -o $@ $^ -lSDL2 -lreadline -ldl
 
 run-env: $(BINARY) $(QEMU_SO)
+
+all: app
 
 run: run-env
 	$(call git_commit, "run")

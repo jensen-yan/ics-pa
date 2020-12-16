@@ -38,6 +38,55 @@ static int cmd_q(char *args) {
 
 static int cmd_help(char *args);
 
+static int cmd_si(char *args){
+    uint64_t n = strtol(args,NULL, 10);
+    cpu_exec(n);
+    return 0;
+}
+
+// info r / info w
+static int cmd_info(char *args){
+    if(strcmp(args, "r") == 0){
+        isa_reg_display();
+    } else if(strcmp(args, "w") == 0){
+        // todo
+    } else{
+        Log("Invalid cmd! Use 'info r' or 'info w'!");
+    }
+    return 0;
+}
+
+// p (1*2+3-2)+3
+static int cmd_p(char *args){
+    bool success = false;
+    uint32_t ret = expr(args, &success);
+    printf("Result: %u \n", ret);
+    return 0;
+}
+
+// x 4 0x100000
+static int cmd_x(char *args){
+    char* arg1 = strtok(args, " ");
+    char* arg2 = arg1 + strlen(arg1) + 1;   // todo: 只支持0x100, 还要支持eax的值这样
+    long n = strtol(arg1, NULL, 10);
+    uint32_t offset = strtol(arg2+2, NULL, 16); // str to hex num.  eg: 0x10 -> 16
+    for (int i = 0; i < n; ++i) {
+        uint32_t begin = offset + i*4;
+        printf("Addr: " FMT_WORD "   ", begin);
+        printf("Data: 0x%02x%02x%02x%02x\n", pmem[begin+3], pmem[begin+2], pmem[begin+1], pmem[begin]);    // 32位空间, 分成4个存放
+    }
+
+    return 0;
+}
+
+static int cmd_w(char *args){
+    return 0;
+}
+
+static int cmd_d(char *args){
+    return 0;
+}
+
 static struct {
   char *name;
   char *description;
@@ -46,6 +95,12 @@ static struct {
   { "help", "Display informations about all supported commands", cmd_help },
   { "c", "Continue the execution of the program", cmd_c },
   { "q", "Exit NEMU", cmd_q },
+  { "si", "exec N steps", cmd_si},
+  { "info", "print regs or watchpoint", cmd_info},
+  { "p", "print expr", cmd_p},
+  { "x", "scan expr ~ expr + n memory", cmd_x},
+  { "w", "set the watchpoint", cmd_w},
+  { "d", "delete the watchpoint", cmd_d}
 
   /* TODO: Add more commands */
 
